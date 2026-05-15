@@ -1,149 +1,92 @@
-'use client'
+"use client";
+import { useState, useEffect } from "react";
 
-import { useState, useEffect } from 'react'
-
-// ─── Intro config ────────────────────────────────────────────────────────────
-const INTRO_TEXT = "Hi, I'm Cole."
-const TYPE_SPEED   = 80  // ms between each character
-const PAUSE_AFTER  = 900 // ms to sit still after typing finishes
-const FADE_DURATION = 500 // ms for the fade-out
-
-// ─── Terminal lines ───────────────────────────────────────────────────────────
-type LineType = 'prompt' | 'highlight' | 'output' | 'dim' | 'nav' | 'spacer' | 'idle'
-interface Line { id: string; type: LineType; text?: string }
-
-const LINES: Line[] = [
-  { id: 'cmd1', type: 'prompt',    text: 'whoami' },
-  { id: 'name', type: 'highlight', text: 'Cole Murray' },
-  { id: 'info', type: 'output',    text: 'Computer Engineering @ UIUC' },
-  { id: 'sub',  type: 'dim',       text: 'Class of 2028  ·  Aspiring software engineer' },
-  { id: 'sp1',  type: 'spacer' },
-  { id: 'cmd2', type: 'prompt',    text: 'ls' },
-  { id: 'nav',  type: 'nav' },
-  { id: 'sp2',  type: 'spacer' },
-  { id: 'idle', type: 'idle' },
-]
-
-const LINE_DELAY = 200 // ms between each terminal line appearing
-
-// ─── Phase type ───────────────────────────────────────────────────────────────
-// The page moves through these phases in order
-type Phase = 'typing' | 'pausing' | 'fading' | 'done'
-
-// ─── Page component ───────────────────────────────────────────────────────────
 export default function Home() {
-  const [phase, setPhase]             = useState<Phase>('typing')
-  const [typedChars, setTypedChars]   = useState(0)
-  const [visibleLines, setVisibleLines] = useState(0)
-
-  // Phase: typing — add one character at a time
-  useEffect(() => {
-    if (phase !== 'typing') return
-    if (typedChars >= INTRO_TEXT.length) { setPhase('pausing'); return }
-    const t = setTimeout(() => setTypedChars(c => c + 1), TYPE_SPEED)
-    return () => clearTimeout(t)
-  }, [phase, typedChars])
-
-  // Phase: pausing — wait, then start fading
-  useEffect(() => {
-    if (phase !== 'pausing') return
-    const t = setTimeout(() => setPhase('fading'), PAUSE_AFTER)
-    return () => clearTimeout(t)
-  }, [phase])
-
-  // Phase: fading — wait for the CSS transition to finish, then mark done
-  useEffect(() => {
-    if (phase !== 'fading') return
-    const t = setTimeout(() => setPhase('done'), FADE_DURATION)
-    return () => clearTimeout(t)
-  }, [phase])
-
-  // Phase: done — reveal terminal lines one by one
-  useEffect(() => {
-    if (phase !== 'done') return
-    if (visibleLines >= LINES.length) return
-    const t = setTimeout(() => setVisibleLines(v => v + 1), LINE_DELAY)
-    return () => clearTimeout(t)
-  }, [phase, visibleLines])
-
   return (
-    <main className="min-h-screen flex items-center justify-center px-8">
-
-      {/* ── Splash overlay ──────────────────────────────────────────────────
-          Fixed over the whole screen. When phase becomes 'fading' we set
-          opacity to 0 — the CSS transition on the element makes it smooth.
-          Once phase is 'done' we remove it from the DOM entirely.        */}
-      {phase !== 'done' && (
-        <div
-          className="fixed inset-0 z-10 flex items-center justify-center bg-[#0f1117] transition-opacity duration-500"
-          style={{ opacity: phase === 'fading' ? 0 : 1 }}
-        >
-          <p className="font-mono text-3xl text-[#abb2bf] tracking-wide">
-            {INTRO_TEXT.slice(0, typedChars)}
-            {/* Cursor only shows while typing or pausing, not during fade */}
-            {phase !== 'fading' && (
-              <span className={phase === 'pausing' ? 'cursor-blink' : ''}>█</span>
-            )}
-          </p>
-        </div>
-      )}
-
-      {/* ── Terminal content ─────────────────────────────────────────────── */}
-      <div className="w-full max-w-lg font-mono text-sm">
-        {LINES.slice(0, visibleLines).map(line => (
-          <div key={line.id} className="fade-in">
-            <Line line={line} />
-          </div>
-        ))}
-      </div>
-
+    <main className="min-h-screen flex flex-col items-center px-8 py-8">
+      <Hero />
+      <Experience />
     </main>
-  )
+  );
 }
 
-// ─── Line renderer ────────────────────────────────────────────────────────────
-function Line({ line }: { line: Line }) {
-  switch (line.type) {
-    case 'prompt':
-      return (
-        <p className="leading-8">
-          <span className="text-[#98c379]">~</span>
-          <span className="text-[#4b5263]"> $ </span>
-          <span className="text-[#abb2bf]">{line.text}</span>
-        </p>
-      )
-    case 'highlight':
-      return <p className="text-[#e5c07b] text-2xl font-semibold leading-10 pl-4">{line.text}</p>
-    case 'output':
-      return <p className="text-[#abb2bf] leading-7 pl-4">{line.text}</p>
-    case 'dim':
-      return <p className="text-[#4b5263] leading-7 pl-4">{line.text}</p>
-    case 'nav':
-      return (
-        <div className="flex flex-wrap gap-5 pl-4 leading-7">
-          <NavLink href="#about"    label="about/"    />
-          <NavLink href="#projects" label="projects/" />
-          <NavLink href="#skills"   label="skills/"   />
-          <NavLink href="#contact"  label="contact/"  />
-        </div>
-      )
-    case 'spacer':
-      return <div className="h-2" />
-    case 'idle':
-      return (
-        <p className="leading-8">
-          <span className="text-[#98c379]">~</span>
-          <span className="text-[#4b5263]"> $ </span>
-          <span className="cursor-blink text-[#abb2bf]">█</span>
-        </p>
-      )
-  }
-}
+function Hero() {
+  const fullText = "Hi, I'm Cole";
 
-function NavLink({ href, label }: { href: string; label: string }) {
+  const [typed, setTyped] = useState("");
+
+  useEffect(() => {
+    let i = 0;
+    const timer = setInterval(() => {
+      setTyped(fullText.slice(0, i + 1));
+      i++;
+      if (i >= fullText.length) clearInterval(timer);
+    }, 90);
+    return () => clearInterval(timer);
+  }, []);
+
+  const done = typed === fullText;
+
   return (
-    <a href={href} className="text-[#61afef] hover:text-[#88c0fc] hover:underline transition-colors">
-      {label}
-    </a>
-  )
+    <div className="flex mt-24 gap-16">
+      {/* Casual headshot */}
+      <img
+        src="/casual_headshot.jpg"
+        alt="Cole Murray"
+        className="w-56 h-56 mt-4 border border-gray rounded-full object-cover"
+      />
+      {/* All of the text for the hero at the top */}
+      <div className="mt-16">
+        <h1 className="text-6xl text-white font-bold">
+          {typed}
+          {!done && <span className="animate-pulse">|</span>}
+        </h1>
+        <div className="flex items-center gap-3 mt-3">
+          <p className="text-xl">Computer Engineering @ UIUC</p>
+          <img
+            src="/Illinois_Block_I.png"
+            alt="UIUC Logo"
+            className="h-8 w-auto object-contain"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Experience() {
+  return (
+    <div className="w-full max-w-7xl mt-24">
+      {/* Outer "gray paper" — the border lives here, with a visible gap around the terminal */}
+      <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
+        {/* Inner "black paper" — the terminal itself */}
+        <div className="rounded-[8px] border border-white/20 overflow-hidden">
+          {/* macOS title bar */}
+          <div className="bg-[#070707] px-4 py-4 border-b border-white/20 flex items-center gap-2">
+            <div className="ml-2 w-3 h-3 rounded-full bg-[#ff5f57]" />
+            <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+          </div>
+          {/* Terminal content */}
+          <div className="bg-[#0f0f11] p-5 font-mono text-sm leading-relaxed">
+            <p>
+              <span className="text-green-400">cole@portfolio</span>
+              <span className="text-white">:~$ ls -la ./experience</span>
+            </p>
+            <div className="mt-2 space-y-1">
+              <p className="text-gray-500 text-xs">total 1</p>
+              <div className="flex gap-6">
+                <span className="text-purple-400">drwxr-xr-x</span>
+                <span className="text-gray-400">2024 – present</span>
+                <span className="text-sky-300">Nerdio/</span>
+                <span className="text-gray-300 mb-100">
+                  Software Engineer Intern
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

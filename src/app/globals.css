@@ -1,40 +1,38 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #0f1117;
-  --text: #abb2bf;
-  --green: #98c379;
-  --blue: #61afef;
-  --yellow: #e5c07b;
-  --dim: #4b5263;
-}
-
-@theme inline {
-  --color-background: var(--bg);
-  --color-foreground: var(--text);
-  --font-mono: var(--font-geist-mono);
-}
-
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-geist-mono), monospace;
+  background-color: #050505;
+  color: #e5e7eb;
+  font-family: var(--font-inter), sans-serif;
+  position: relative;
+  isolation: isolate;
+
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(109, 118, 152, 0.18) 0%, transparent 60%);
 }
 
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in {
-  animation: fadeSlideIn 0.2s ease-out both;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
-.cursor-blink {
-  animation: blink 1s step-end infinite;
+/* ::before is a ghost element CSS creates without any HTML.
+   position: absolute puts it at the top of the page so it scrolls away naturally. */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 5%;
+  width: 90%;
+  height: 100vh;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 100px 100px, 75px 75px;
+  /* Two gradient masks intersected: one fades left/right, one fades top/bottom */
+  mask-image:
+    linear-gradient(to right, transparent, black 5%, black 95%, transparent),
+    linear-gradient(to bottom, black, black 90%, transparent);
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, black 5%, black 95%, transparent),
+    linear-gradient(to bottom, black, black 90%, transparent);
+  -webkit-mask-composite: destination-in;
+  pointer-events: none;
+  z-index: -1;
 }
