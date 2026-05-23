@@ -8,7 +8,7 @@ body {
   isolation: isolate;
 
   background-image:
-    radial-gradient(circle at 50% 0%, rgba(109, 118, 152, 0.18) 0%, transparent 60%);
+    radial-gradient(circle at 50% 0%, rgba(36, 54, 214, 0.212) 0%, transparent 60%);
 }
 
 /* ::before is a ghost element CSS creates without any HTML.

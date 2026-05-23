@@ -28,7 +28,7 @@ function Hero() {
   const done = typed === fullText;
 
   return (
-    <div className="flex mt-24 gap-16">
+    <div className="flex items-start mt-24 gap-16">
       {/* Casual headshot */}
       <img
         src="/casual_headshot.jpg"
@@ -37,12 +37,17 @@ function Hero() {
       />
       {/* All of the text for the hero at the top */}
       <div className="mt-16">
-        <h1 className="text-6xl text-white font-bold">
-          {typed}
-          {!done && <span className="animate-pulse">|</span>}
+        <h1 className="text-6xl text-white font-bold relative">
+          {/* Invisible full text — holds the final width so layout never shifts */}
+          <span className="invisible select-none">{fullText}</span>
+          {/* Typed text overlaid on top */}
+          <span className="absolute inset-0">
+            {typed}
+            {!done && <span className="animate-pulse">|</span>}
+          </span>
         </h1>
         <div className="flex items-center gap-3 mt-3">
-          <p className="text-xl">Computer Engineering @ UIUC</p>
+          <p className="text-xl">Computer Engineering @ </p>
           <img
             src="/Illinois_Block_I.png"
             alt="UIUC Logo"
